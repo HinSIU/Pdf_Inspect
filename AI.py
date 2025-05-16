@@ -1,7 +1,7 @@
 from openai import OpenAI
 import re
 
-api_key = '31e53dad-0f8f-46d3-b22f-637a3b27bc23'
+api_key = ''
 api_base = 'https://ark.cn-beijing.volces.com/api/v3'
 model = 'deepseek-v3-250324'
 #model="deepseek-r1-250120", 

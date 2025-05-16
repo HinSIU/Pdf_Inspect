@@ -22,9 +22,9 @@ r = RM.start() # 调用规则检查函数，传入参数(自行编写或通过PD
 
 for key in r: # 打印检测结果
     if not r[key][0]:
-        print(f"不通过：{key} -- {r[key][1]}" )
+        print(f"{key}：不通过 -- {r[key][1]}" )
     else:
-        print(f"通过：{key} -- {r[key][1]}" )
+        print(f"{key}：通过 -- {r[key][1]}" )
 
 
 

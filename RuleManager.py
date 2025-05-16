@@ -28,7 +28,10 @@ def ParseRuleToPrompt(prompt_path:str, id_list:list):
             
         prompt = prompt + f"\n{rule_prompt}"
         
-    ret_prompt = '''\n\n检查结果以json格式字符串输出,无需返回其他内容：{rule_XX: (true/false, 检测结果解释，200字以内), ...}'''
+    ret_prompt = '''\n\n检查结果严格以示例json格式字符串输出,无需返回其他内容：
+                    {"规则名":[true/false,"结果解释200字以内"]}
+                    示例：
+                    {"rule_1": [true, "结果解释200字以内"]}'''
     prompt = prompt + ret_prompt
 
     return prompt
