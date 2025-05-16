@@ -16,7 +16,7 @@ pdf = PDFParser(sys.argv[1])
             #     "规则2":[true/false.'检测结果解释，200字以内'],
             #     ...
             #   }
-RM = RuleManager(pdf.res,pdf.pic,pdf.page_num) # 初始化时已经调用了AI进行识别部分数据，若不需要请到PDFParser中注释掉对应代码
+RM = RuleManager(pdf.res,pdf.pic,pdf.page_num,pdf.pages) # 初始化时已经调用了AI进行识别部分数据，若不需要请到PDFParser中注释掉对应代码
 
 r = RM.start() # 调用规则检查函数，传入参数(自行编写或通过PDFParser获取..)
 

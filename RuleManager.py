@@ -5,19 +5,57 @@ def has_method(cls, method_name):
     return hasattr(cls, method_name) and callable(getattr(cls, method_name))
 
 
+def ParseRuleToPrompt(prompt_path:str, id_list:list):
+    
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        prompt_dict = json.load(f)
+    
+    prompt="你是一个公文规范检测辅助专家，请对由pymupdf读取的公文内容格式等进行检查，判断是否符合以下规则。"
+    
+    for i in id_list:  
+        i = str(i)
+        rule_name = f'rule_{i}'
+        rule_decs = prompt_dict[i]['prompt']
+        
+        rule_prompt = f'''{rule_name} : {rule_decs}'''
+        
+        if 'positive' in prompt_dict[i]:
+            rule_positive = prompt_dict[i]['positive']
+            rule_prompt = rule_prompt + f"\n   正确例子：{rule_positive}"
+        if 'negative' in prompt_dict[i]:
+            rule_negative = prompt_dict[i]['negative']
+            rule_prompt = rule_prompt + f"\n   错误例子：{rule_negative}"
+            
+        prompt = prompt + f"\n{rule_prompt}"
+        
+    ret_prompt = '''\n\n检查结果以json格式字符串输出,无需返回其他内容：{rule_XX: (true/false, 检测结果解释，200字以内), ...}'''
+    prompt = prompt + ret_prompt
+
+    return prompt
+
 class RuleManager:
     
-    def __init__(self,res:list, pic:list, page_num:int):
+    def __init__(self,res:list, pic:list, page_num:int , pages:list):
         self.res = res # 文本
         self.pic = pic # 图片
         self.page_num = page_num # 页数
+        self.pages = pages
     
     def start(self):
         """xmq
+        执行规则检测，
+        获取RuleManager类的所有以rule_开头的方法，
+        按规则编号顺序执行规则检测，
+        返回值为字典，键为规则编号，值为元组或列表（布尔值，描述）
+        布尔值为True表示通过，False表示不通过
+        
+        AI增强检测:
+        通过ParseRuleToPrompt读取prompt.json设定的AI检测说明，
+        多个规则构造一个prompt调用AI批量检测
         """ 
         
         r = {}
-        # 按序号执行规则检测
+        # 按序号执行固定规则检测
         for i in range(1,200): 
           if hasattr(self, f"rule_{i}") and callable(getattr(self, f"rule_{i}")):
             try :
@@ -27,6 +65,24 @@ class RuleManager:
               tmp_r = {f"rule_{i}":(False, '执行规则时出错')}
               
             r.update(tmp_r)
+
+
+
+        # AI增强检测示例（输入第一页dict, 检查rule1-6,标题相关规范）
+        rule_prompt = ParseRuleToPrompt('prompt.json', [1,2,3,4,5,6])
+        input_prompt = f"\n\n 读取的第一页内容如下：{str(self.pages[0])}"
+        final_prompt = rule_prompt + input_prompt
+ 
+        print(f"step：通过AI检测规则1-6...",end="")
+        AI_r = askAI(final_prompt)
+        print(f"完成:\n{AI_r}")
+        # 处理返回内容为json
+        try:
+            AI_r = json.loads(rm_think(AI_r)[7:-3])
+            r.update(AI_r)        # 合并检测结果  
+        except Exception as e:
+            print(f"Error: AI处理出错：{e}")      
+        
         return r
     
     def rule_7(self):
@@ -130,7 +186,6 @@ class RuleManager:
         des = des.strip()
         return (res,des)
 
-    
     def rule_36(self):
         """xmq
         检测印章格式规范
@@ -353,3 +408,7 @@ class RuleManager:
         
         r = rm_think(r).strip()
         return r # json.loads(r[7:-3])
+
+
+if __name__ == "__main__":
+    ParseRule_AI('prompt.json',[1,2,3,4,5,6])
