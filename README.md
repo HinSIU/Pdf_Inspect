@@ -5,15 +5,18 @@
 
 ## 功能特性
 - PDF文档解析：使用PyMuPDF库提取文本、图片和页面信息
-- AI辅助检测：结合AI技术进行标题规范、落款排版等复杂规则检查
+- 固定规则检测：编写固定规则检测代码，快速检测容易判别的规范。
+- AI辅助检测：结合AI技术进行内容、规范、排版等复杂规则检查
 - 详细报告：提供明确的检查结果和问题描述（TODO）
 
 ## 技术架构
 ├── AI.py                # AI辅助检测模块
 ├── PDFParser.py         # PDF解析核心模块
+├── prompt.json          # AI检测规则配置文件
 ├── RuleManager.py       # 规则管理引擎
 ├── main.py              # 主程序入口
 └── README.md            # 项目文档
+
 
 
 ## 核心模块说明
@@ -50,7 +53,7 @@
 
 ### prompt.json
 - 功能：用于AI检测的提示词编写
-- key是rule id,需要保持唯一，prompt必填，positive(正确示例)，negative(错误示例)，positive、negative非必须。
+- key是rule_id,需要保持唯一，prompt必填，positive(正确示例)，negative(错误示例)，positive、negative非必须。
 示例：
   ```json
   {
@@ -84,5 +87,8 @@ python main.py 公文.pdf
    - 在RuleManager.py中添加 rule_XX() 方法
    - 方法应返回 (bool, str) 格式的结果
 2. 扩展AI检查：
-   - 修改AI.py中的提示词模板
-   - 在RuleManager.py中添加新的AI检查方法
+   - 增加prompt.json中的AI规范检测规则
+   - 在RuleManager.py的start()方法调用ParseRuleToPrompt进行提示词生成
+   - 在提示词中 添加 输入的文本
+   - 处理返回结果为json
+   - r.update()合并返回结果
